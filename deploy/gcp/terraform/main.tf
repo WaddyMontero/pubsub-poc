@@ -174,14 +174,14 @@ resource "google_cloud_run_v2_service" "mock_vendor_api" {
   labels              = var.labels
 
   scaling {
-    min_instance_count = 0
+    min_instance_count = var.cloud_run_min_instances
     scaling_mode       = "AUTOMATIC"
   }
 
   template {
     service_account = google_service_account.generator.email
     scaling {
-      min_instance_count = 0
+      min_instance_count = var.cloud_run_min_instances
       max_instance_count = 1
     }
 
@@ -217,15 +217,15 @@ resource "google_cloud_run_v2_service" "radar" {
   labels              = var.labels
 
   scaling {
-    min_instance_count = 0
+    min_instance_count = var.cloud_run_min_instances
     scaling_mode       = "AUTOMATIC"
   }
 
   template {
     service_account = google_service_account.radar.email
     scaling {
-      min_instance_count = 0
-      max_instance_count = var.extractor_max_instances
+      min_instance_count = var.cloud_run_min_instances
+      max_instance_count = var.max_instances
     }
 
     containers {
@@ -272,15 +272,15 @@ resource "google_cloud_run_v2_service" "extractor" {
   labels              = var.labels
 
   scaling {
-    min_instance_count = 0
+    min_instance_count = var.cloud_run_min_instances
     scaling_mode       = "AUTOMATIC"
   }
 
   template {
     service_account = google_service_account.extractor.email
     scaling {
-      min_instance_count = 0
-      max_instance_count = var.max_instances
+      min_instance_count = var.cloud_run_min_instances
+      max_instance_count = var.extractor_max_instances
     }
 
     containers {

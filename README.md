@@ -55,6 +55,7 @@ PROJECT_ID="your-project-id" ./scripts/gcp/deploy.sh
 ```
 
 The default cloud smoke test generates 15 messages, writes them to BigQuery, and flushes one JSONL proof file to GCS.
+Cloud Run services keep one warm instance by default so the deployed demo appears continuously available until the killswitch is run. Set `CLOUD_RUN_MIN_INSTANCES=0` to allow scale-to-zero.
 
 Tear it down with the killswitch:
 

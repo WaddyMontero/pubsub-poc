@@ -38,6 +38,7 @@ project_id: pubsub-poc-500520
 region: europe-west1
 generator_count: 15
 audit_batch_min_messages: 15
+cloud_run_min_instances: 1
 run_smoke_test: true
 ```
 

@@ -7,3 +7,4 @@ image_uri = "europe-west1-docker.pkg.dev/your-project-id/domx-ingestion-poc-imag
 generator_count            = 15
 generator_interval_seconds = 1
 audit_batch_min_messages   = 15
+cloud_run_min_instances    = 1

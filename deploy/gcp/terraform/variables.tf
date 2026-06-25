@@ -50,6 +50,12 @@ variable "max_instances" {
   default     = 3
 }
 
+variable "cloud_run_min_instances" {
+  description = "Minimum warm instances for always-on Cloud Run services. Use 0 for scale-to-zero cost optimization."
+  type        = number
+  default     = 1
+}
+
 variable "audit_batch_min_messages" {
   description = "Minimum successfully ingested messages per audit proof file."
   type        = number

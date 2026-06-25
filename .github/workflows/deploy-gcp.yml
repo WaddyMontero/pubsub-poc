@@ -19,6 +19,10 @@ on:
         description: Minimum ingested messages per GCS audit proof file
         required: true
         default: "15"
+      cloud_run_min_instances:
+        description: Minimum warm Cloud Run instances for each always-on service
+        required: true
+        default: "1"
       run_smoke_test:
         description: Run the generator and verify BigQuery/GCS after deploy
         required: true
@@ -64,5 +68,6 @@ jobs:
           REGION: ${{ inputs.region }}
           GENERATOR_COUNT: ${{ inputs.generator_count }}
           AUDIT_BATCH_MIN_MESSAGES: ${{ inputs.audit_batch_min_messages }}
+          CLOUD_RUN_MIN_INSTANCES: ${{ inputs.cloud_run_min_instances }}
           RUN_SMOKE_TEST: ${{ inputs.run_smoke_test && '1' || '0' }}
         run: ./scripts/gcp/deploy.sh

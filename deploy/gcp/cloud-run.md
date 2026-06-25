@@ -40,6 +40,7 @@ NAME_PREFIX="domx-ingestion-poc"
 RUN_SMOKE_TEST="1"
 GENERATOR_COUNT="15"
 AUDIT_BATCH_MIN_MESSAGES="15"
+CLOUD_RUN_MIN_INSTANCES="1"
 ```
 
 The deploy script writes two ignored local files:
@@ -56,6 +57,16 @@ Run the generator job, query the BigQuery landing table, and list the GCS proof 
 ```
 
 The expected result is at least 15 landed records, a recent `latest_extracted_at` timestamp, and at least one object under `gs://BUCKET/ingestion-audit/`.
+
+## Always-On Behavior
+
+The default deployment keeps one warm instance for each Cloud Run service so the demo looks alive until the killswitch is run. For lower cost, set:
+
+```bash
+CLOUD_RUN_MIN_INSTANCES="0"
+```
+
+That keeps the service deployed but lets Cloud Run scale containers down to zero between requests.
 
 ## Status
 
