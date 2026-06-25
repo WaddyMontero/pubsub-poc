@@ -4,6 +4,7 @@ This repo includes manual GitHub Actions for operating the GCP demo:
 
 - `CI`: runs unit tests and Terraform validation.
 - `Deploy GCP`: builds the container, applies Terraform, and optionally runs the 15-message smoke test.
+- `Generate GCP Data`: executes the Cloud Run generator job and verifies new BigQuery/GCS output.
 - `Restart GCP`: bumps a Cloud Run environment variable to roll the radar, extractor, and mock vendor API revisions, then optionally runs the smoke test.
 - `Destroy GCP`: guarded killswitch that only runs when the confirmation input matches `destroy PROJECT_ID`.
 

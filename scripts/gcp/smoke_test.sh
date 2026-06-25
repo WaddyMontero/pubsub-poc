@@ -14,6 +14,12 @@ BIGQUERY_TABLE="$(terraform -chdir="$TF_DIR" output -raw bigquery_table)"
 AUDIT_BUCKET="$(terraform -chdir="$TF_DIR" output -raw audit_bucket)"
 GENERATOR_COUNT="${GENERATOR_COUNT:-15}"
 
+BEFORE_RECORDS="$(bq query \
+  --project_id="$PROJECT_ID" \
+  --use_legacy_sql=false \
+  --format=csv \
+  "select count(*) as landed_records from \`$BIGQUERY_TABLE\`" | tail -n 1)"
+
 echo "Executing generator job: $GENERATOR_JOB"
 gcloud run jobs execute "$GENERATOR_JOB" \
   --project "$PROJECT_ID" \
@@ -27,10 +33,11 @@ for attempt in {1..12}; do
     --use_legacy_sql=false \
     --format=csv \
     "select count(*) as landed_records from \`$BIGQUERY_TABLE\`" | tail -n 1)"
-  if [[ "$LANDED_RECORDS" -ge "$GENERATOR_COUNT" ]]; then
+  NEW_RECORDS=$((LANDED_RECORDS - BEFORE_RECORDS))
+  if [[ "$NEW_RECORDS" -ge "$GENERATOR_COUNT" ]]; then
     break
   fi
-  echo "Waiting for BigQuery rows attempt=$attempt landed_records=$LANDED_RECORDS expected_at_least=$GENERATOR_COUNT"
+  echo "Waiting for BigQuery rows attempt=$attempt before=$BEFORE_RECORDS current=$LANDED_RECORDS new=$NEW_RECORDS expected_new_at_least=$GENERATOR_COUNT"
   sleep 5
 done
 

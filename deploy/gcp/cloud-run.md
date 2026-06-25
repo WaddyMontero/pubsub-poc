@@ -58,6 +58,8 @@ Run the generator job, query the BigQuery landing table, and list the GCS proof 
 
 The expected result is at least 15 landed records, a recent `latest_extracted_at` timestamp, and at least one object under `gs://BUCKET/ingestion-audit/`.
 
+The generator is intentionally a Cloud Run Job, not a service. In the real vendor flow, `radar` is passive and only publishes events when a vendor webhook arrives. In the demo, execute the generator job whenever you want a new batch of synthetic Domx changes.
+
 ## Always-On Behavior
 
 The default deployment keeps one warm instance for each Cloud Run service so the demo looks alive until the killswitch is run. For lower cost, set:
