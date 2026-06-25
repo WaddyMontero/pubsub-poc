@@ -11,8 +11,8 @@ on:
         description: GCP region
         required: true
         default: europe-west1
-      expected_new_records:
-        description: Records expected from the currently deployed generator job
+      record_count:
+        description: Synthetic Domx changes to generate and verify
         required: true
         default: "15"
 
@@ -50,5 +50,5 @@ jobs:
         env:
           PROJECT_ID: ${{ inputs.project_id }}
           REGION: ${{ inputs.region }}
-          GENERATOR_COUNT: ${{ inputs.expected_new_records }}
+          GENERATOR_COUNT: ${{ inputs.record_count }}
         run: ./scripts/gcp/smoke_test.sh

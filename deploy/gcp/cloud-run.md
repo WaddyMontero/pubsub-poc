@@ -53,12 +53,12 @@ The deploy script writes two ignored local files:
 Run the generator job, query the BigQuery landing table, and list the GCS proof files:
 
 ```bash
-./scripts/gcp/smoke_test.sh
+GENERATOR_COUNT="150" ./scripts/gcp/smoke_test.sh
 ```
 
 The expected result is at least 15 landed records, a recent `latest_extracted_at` timestamp, and at least one object under `gs://BUCKET/ingestion-audit/`.
 
-The generator is intentionally a Cloud Run Job, not a service. In the real vendor flow, `radar` is passive and only publishes events when a vendor webhook arrives. In the demo, execute the generator job whenever you want a new batch of synthetic Domx changes.
+The generator is intentionally a Cloud Run Job, not a service. In the real vendor flow, `radar` is passive and only publishes events when a vendor webhook arrives. In the demo, execute the generator job whenever you want a new batch of synthetic Domx changes. `GENERATOR_COUNT` overrides the job execution count for that run without redeploying Terraform.
 
 ## Always-On Behavior
 

@@ -5,19 +5,28 @@ TF_DIR="$ROOT_DIR/deploy/gcp/terraform"
 DEPLOY_ENV="$ROOT_DIR/.gcp-deployment.env"
 
 load_deploy_env() {
+  local input_project_id="${PROJECT_ID:-${1:-}}"
+  local input_region="${REGION:-}"
+  local input_name_prefix="${NAME_PREFIX:-}"
+  local input_generator_count="${GENERATOR_COUNT:-}"
+  local input_audit_batch_min_messages="${AUDIT_BATCH_MIN_MESSAGES:-}"
+  local input_cloud_run_min_instances="${CLOUD_RUN_MIN_INSTANCES:-}"
+  local input_tf_state_bucket="${TF_STATE_BUCKET:-}"
+  local input_tf_state_prefix="${TF_STATE_PREFIX:-}"
+
   if [[ -f "$DEPLOY_ENV" ]]; then
     # shellcheck disable=SC1090
     source "$DEPLOY_ENV"
   fi
 
-  PROJECT_ID="${PROJECT_ID:-${1:-}}"
-  REGION="${REGION:-europe-west1}"
-  NAME_PREFIX="${NAME_PREFIX:-domx-ingestion-poc}"
-  GENERATOR_COUNT="${GENERATOR_COUNT:-15}"
-  AUDIT_BATCH_MIN_MESSAGES="${AUDIT_BATCH_MIN_MESSAGES:-15}"
-  CLOUD_RUN_MIN_INSTANCES="${CLOUD_RUN_MIN_INSTANCES:-1}"
-  TF_STATE_BUCKET="${TF_STATE_BUCKET:-${PROJECT_ID}-${NAME_PREFIX}-tfstate}"
-  TF_STATE_PREFIX="${TF_STATE_PREFIX:-terraform/state}"
+  PROJECT_ID="${input_project_id:-${PROJECT_ID:-}}"
+  REGION="${input_region:-${REGION:-europe-west1}}"
+  NAME_PREFIX="${input_name_prefix:-${NAME_PREFIX:-domx-ingestion-poc}}"
+  GENERATOR_COUNT="${input_generator_count:-${GENERATOR_COUNT:-15}}"
+  AUDIT_BATCH_MIN_MESSAGES="${input_audit_batch_min_messages:-${AUDIT_BATCH_MIN_MESSAGES:-15}}"
+  CLOUD_RUN_MIN_INSTANCES="${input_cloud_run_min_instances:-${CLOUD_RUN_MIN_INSTANCES:-1}}"
+  TF_STATE_BUCKET="${input_tf_state_bucket:-${TF_STATE_BUCKET:-${PROJECT_ID}-${NAME_PREFIX}-tfstate}}"
+  TF_STATE_PREFIX="${input_tf_state_prefix:-${TF_STATE_PREFIX:-terraform/state}}"
 
   if [[ -z "$PROJECT_ID" ]]; then
     echo "PROJECT_ID is required." >&2

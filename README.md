@@ -60,7 +60,7 @@ Cloud Run services keep one warm instance by default so the deployed demo appear
 Generate another cloud demo batch without redeploying:
 
 ```bash
-PROJECT_ID="your-project-id" ./scripts/gcp/smoke_test.sh
+PROJECT_ID="your-project-id" GENERATOR_COUNT=150 ./scripts/gcp/smoke_test.sh
 ```
 
 Or run the `Generate GCP Data` GitHub Action.
