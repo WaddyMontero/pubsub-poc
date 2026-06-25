@@ -24,6 +24,7 @@ The script creates:
 - A Workload Identity pool and OIDC provider restricted to that GitHub repository.
 - A `github-actions-deployer` service account.
 - Project IAM grants needed by Terraform, Cloud Run, Artifact Registry, Pub/Sub, BigQuery, and GCS.
+- Service account impersonation grants for GitHub Actions.
 - GitHub repository secrets:
   - `GCP_WORKLOAD_IDENTITY_PROVIDER`
   - `GCP_SERVICE_ACCOUNT`
