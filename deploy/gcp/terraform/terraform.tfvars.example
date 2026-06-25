@@ -1,0 +1,9 @@
+project_id = "your-project-id"
+region     = "europe-west1"
+
+# scripts/gcp/deploy.sh fills this in automatically from project_id/region.
+image_uri = "europe-west1-docker.pkg.dev/your-project-id/domx-ingestion-poc-images/domx-ingestion-poc:latest"
+
+generator_count            = 15
+generator_interval_seconds = 1
+audit_batch_min_messages   = 15

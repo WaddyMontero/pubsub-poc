@@ -1,0 +1,68 @@
+name: Deploy GCP
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: GCP project ID
+        required: true
+        default: pubsub-poc-500520
+      region:
+        description: GCP region
+        required: true
+        default: europe-west1
+      generator_count:
+        description: Number of synthetic Domx changes for the smoke test
+        required: true
+        default: "15"
+      audit_batch_min_messages:
+        description: Minimum ingested messages per GCS audit proof file
+        required: true
+        default: "15"
+      run_smoke_test:
+        description: Run the generator and verify BigQuery/GCS after deploy
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: Terraform deploy
+    runs-on: ubuntu-latest
+    concurrency:
+      group: gcp-deploy-${{ inputs.project_id }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.8.5"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Deploy Cloud Run stack
+        env:
+          PROJECT_ID: ${{ inputs.project_id }}
+          REGION: ${{ inputs.region }}
+          GENERATOR_COUNT: ${{ inputs.generator_count }}
+          AUDIT_BATCH_MIN_MESSAGES: ${{ inputs.audit_batch_min_messages }}
+          RUN_SMOKE_TEST: ${{ inputs.run_smoke_test && '1' || '0' }}
+        run: ./scripts/gcp/deploy.sh

@@ -1,0 +1,96 @@
+services:
+  redpanda:
+    image: redpandadata/redpanda:v24.3.5
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp
+      - "1"
+      - --memory
+      - 1G
+      - --reserve-memory
+      - 0M
+      - --node-id
+      - "0"
+      - --check=false
+      - --kafka-addr
+      - PLAINTEXT://0.0.0.0:9092,OUTSIDE://0.0.0.0:19092
+      - --advertise-kafka-addr
+      - PLAINTEXT://redpanda:9092,OUTSIDE://localhost:19092
+    ports:
+      - "19092:19092"
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: poc
+      POSTGRES_USER: poc
+      POSTGRES_PASSWORD: poc
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mock_vendor_api:
+    build: .
+    command: uvicorn ingestion_poc.services.mock_vendor_api:app --host 0.0.0.0 --port 8001
+    environment:
+      SERVICE_NAME: mock_vendor_api
+      VENDOR_NAME: domx
+    ports:
+      - "8001:8001"
+
+  radar:
+    build: .
+    command: uvicorn ingestion_poc.services.radar:app --host 0.0.0.0 --port 8000
+    environment:
+      SERVICE_NAME: radar
+      VENDOR_NAME: domx
+      MESSAGE_BUS: kafka
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_TOPIC: vendor.change-events
+    depends_on:
+      - redpanda
+    ports:
+      - "8000:8000"
+
+  extractor:
+    build: .
+    command: python -m ingestion_poc.services.extractor worker
+    environment:
+      SERVICE_NAME: extractor
+      VENDOR_NAME: domx
+      MESSAGE_BUS: kafka
+      WAREHOUSE_SINK: postgres
+      AUDIT_SINK: local
+      AUDIT_BATCH_MIN_MESSAGES: "15"
+      AUDIT_LOCAL_DIR: /audit
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_TOPIC: vendor.change-events
+      KAFKA_GROUP_ID: domxtractor
+      POSTGRES_DSN: postgresql://poc:poc@postgres:5432/poc
+      VENDOR_API_URL: http://mock_vendor_api:8001
+    depends_on:
+      - redpanda
+      - postgres
+      - mock_vendor_api
+    volumes:
+      - ./tmp/ingestion_audit:/audit
+
+  generator:
+    build: .
+    command: python -m ingestion_poc.services.generator
+    environment:
+      SERVICE_NAME: generator
+      VENDOR_NAME: domx
+      RADAR_URL: http://radar:8000
+      VENDOR_API_URL: http://mock_vendor_api:8001
+      GENERATOR_INTERVAL_SECONDS: "1"
+      GENERATOR_COUNT: "0"
+    depends_on:
+      - radar
+      - mock_vendor_api
+
+volumes:
+  postgres_data:

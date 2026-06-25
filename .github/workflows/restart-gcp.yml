@@ -1,0 +1,55 @@
+name: Restart GCP
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: GCP project ID
+        required: true
+        default: pubsub-poc-500520
+      region:
+        description: GCP region
+        required: true
+        default: europe-west1
+      run_smoke_test:
+        description: Run the generator and verify BigQuery/GCS after restart
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  restart:
+    name: Restart Cloud Run services
+    runs-on: ubuntu-latest
+    concurrency:
+      group: gcp-deploy-${{ inputs.project_id }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.8.5"
+
+      - name: Restart services
+        env:
+          PROJECT_ID: ${{ inputs.project_id }}
+          REGION: ${{ inputs.region }}
+          RUN_SMOKE_TEST: ${{ inputs.run_smoke_test && '1' || '0' }}
+        run: ./scripts/gcp/restart.sh
